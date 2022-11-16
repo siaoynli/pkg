@@ -1,3 +1,3 @@
-module github.com/siaoynli/pkg
+module pkg
 
-go 1.19
+go 1.16
