@@ -6,13 +6,14 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"gitee.com/phper95/pkg/errors"
-	"gitee.com/phper95/pkg/trace"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
 	httpURL "net/url"
 	"time"
+
+	"github.com/siaoynli/pkg/errors"
+	"github.com/siaoynli/pkg/trace"
+	"go.uber.org/zap"
 )
 
 const (

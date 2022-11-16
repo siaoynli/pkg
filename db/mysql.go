@@ -2,14 +2,15 @@ package db
 
 import (
 	"fmt"
-	"gitee.com/phper95/pkg/errors"
+	"log"
+	"os"
+	"time"
+
+	"github.com/siaoynli/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"log"
-	"os"
-	"time"
 )
 
 type DB struct {

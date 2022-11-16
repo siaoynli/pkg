@@ -1,8 +1,8 @@
 package cache
 
 import (
-	"gitee.com/phper95/pkg/compression"
 	"github.com/go-redis/redis/v7"
+	"github.com/siaoynli/pkg/compression"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"

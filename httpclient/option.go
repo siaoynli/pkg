@@ -1,10 +1,11 @@
 package httpclient
 
 import (
-	"gitee.com/phper95/pkg/trace"
-	"go.uber.org/zap"
 	"sync"
 	"time"
+
+	"github.com/siaoynli/pkg/trace"
+	"go.uber.org/zap"
 )
 
 var (

@@ -1,3 +1,3 @@
-module gitee.com/phper95/pkg/compression
+module github.com/siaoynli/pkg/compression
 
 go 1.16

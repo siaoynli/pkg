@@ -2,14 +2,15 @@ package cache
 
 import (
 	"fmt"
-	"gitee.com/phper95/pkg/errors"
-	"gitee.com/phper95/pkg/timeutil"
-	"gitee.com/phper95/pkg/trace"
-	"github.com/go-redis/redis/v7"
-	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/go-redis/redis/v7"
+	"github.com/siaoynli/pkg/errors"
+	"github.com/siaoynli/pkg/timeutil"
+	"github.com/siaoynli/pkg/trace"
+	"go.uber.org/zap"
 )
 
 var redisClients = make(map[string]*Redis)

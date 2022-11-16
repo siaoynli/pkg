@@ -3,14 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"gitee.com/phper95/pkg/logger"
-	"gitee.com/phper95/pkg/mq"
-	"github.com/Shopify/sarama"
-	"go.uber.org/zap"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/Shopify/sarama"
+	"github.com/siaoynli/pkg/logger"
+	"github.com/siaoynli/pkg/mq"
+	"go.uber.org/zap"
 )
 
 var (

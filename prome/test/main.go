@@ -1,11 +1,12 @@
 package main
 
 import (
-	"gitee.com/phper95/pkg/httpclient"
-	"gitee.com/phper95/pkg/prome"
-	"github.com/prometheus/client_golang/prometheus"
 	"math/rand"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/siaoynli/pkg/httpclient"
+	"github.com/siaoynli/pkg/prome"
 )
 
 var (

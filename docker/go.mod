@@ -1,3 +1,3 @@
-module gitee.com/phper95/pkg/docker
+module github.com/siaoynli/pkg/docker
 
 go 1.16

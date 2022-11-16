@@ -1,4 +1,4 @@
-module gitee.com/phper95/pkg/es
+module github.com/siaoynli/pkg/es
 
 go 1.16
 

@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"gitee.com/phper95/pkg/es"
 	"strconv"
+
+	"github.com/siaoynli/pkg/es"
 )
 
 const IndexName = "goods"

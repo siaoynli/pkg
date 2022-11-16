@@ -6,12 +6,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"gitee.com/phper95/pkg/timeutil"
-	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/siaoynli/pkg/timeutil"
 )
 
 var _ Signature = (*signature)(nil)
