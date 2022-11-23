@@ -1,11 +1,12 @@
 package cache
 
 import (
-	"github.com/go-redis/redis/v7"
-	"github.com/siaoynli/pkg/compression"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/siaoynli/pkg/compression"
+	"github.com/stretchr/testify/assert"
 )
 
 type UserTest struct {
