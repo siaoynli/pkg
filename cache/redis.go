@@ -1,12 +1,13 @@
 package cache
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 	"github.com/siaoynli/pkg/errors"
 	"github.com/siaoynli/pkg/timeutil"
 	"github.com/siaoynli/pkg/trace"
@@ -14,6 +15,8 @@ import (
 )
 
 var redisClients = make(map[string]*Redis)
+
+var CTXRedis = context.Background()
 
 type Redis struct {
 	client        *redis.Client
@@ -90,7 +93,7 @@ func InitRedis(clientName string, opt *redis.Options, trace *trace.Cache) error 
 	setDefaultOptions(opt)
 	client := redis.NewClient(opt)
 
-	if err := client.Ping().Err(); err != nil {
+	if err := client.Ping(CTXRedis).Err(); err != nil {
 		return errors.Wrap(err, "ping redis err addr : "+opt.Addr)
 	}
 	redisClients[clientName] = &Redis{
@@ -112,7 +115,7 @@ func InitClusterRedis(clientName string, opt *redis.ClusterOptions, trace *trace
 	//如果这里传入很多连接地址，并且连接地址都不可用的情况下会阻塞很长时间
 	client := redis.NewClusterClient(opt)
 
-	if err := client.Ping().Err(); err != nil {
+	if err := client.Ping(CTXRedis).Err(); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("ping redis err  addrs : %v", opt.Addrs))
 	}
 	redisClients[clientName] = &Redis{
@@ -160,14 +163,14 @@ func (r *Redis) Set(key string, value interface{}, ttl time.Duration) error {
 	}()
 
 	if r.client != nil {
-		if err := r.client.Set(key, value, ttl).Err(); err != nil {
+		if err := r.client.Set(CTXRedis, key, value, ttl).Err(); err != nil {
 			return errors.Wrapf(err, "redis set key: %s err", key)
 		}
 		return nil
 	}
 
 	//集群版
-	if err := r.clusterClient.Set(key, value, ttl).Err(); err != nil {
+	if err := r.clusterClient.Set(CTXRedis, key, value, ttl).Err(); err != nil {
 		return errors.Wrapf(err, "redis set key: %s err", key)
 	}
 	return nil
@@ -198,7 +201,7 @@ func (r *Redis) Get(key string) interface{} {
 	}()
 
 	if r.client != nil {
-		value, err := r.client.Get(key).Result()
+		value, err := r.client.Get(CTXRedis, key).Result()
 		if err != nil && err != redis.Nil {
 			CacheStdLogger.Printf("redis get key: %s err %v", key, err)
 
@@ -206,7 +209,7 @@ func (r *Redis) Get(key string) interface{} {
 		return value
 	}
 
-	value, err := r.clusterClient.Get(key).Result()
+	value, err := r.clusterClient.Get(CTXRedis, key).Result()
 	if err != nil && err != redis.Nil {
 		CacheStdLogger.Printf("redis get key: %s err %v", key, err)
 	}
@@ -237,14 +240,14 @@ func (r *Redis) GetStr(key string) (value string, err error) {
 	}()
 
 	if r.client != nil {
-		value, err = r.client.Get(key).Result()
+		value, err = r.client.Get(CTXRedis, key).Result()
 		if err != nil && err != redis.Nil {
 			return "", errors.Wrapf(err, "redis get key: %s err", key)
 		}
 		return
 	}
 
-	value, err = r.clusterClient.Get(key).Result()
+	value, err = r.clusterClient.Get(CTXRedis, key).Result()
 	if err != nil && err != redis.Nil {
 		return "", errors.Wrapf(err, "redis get key: %s err", key)
 	}
@@ -257,13 +260,13 @@ func (r *Redis) TTL(key string) (time.Duration, error) {
 		return 0, errors.New("empty key")
 	}
 	if r.client != nil {
-		ttl, err := r.client.TTL(key).Result()
+		ttl, err := r.client.TTL(CTXRedis, key).Result()
 		if err != nil && err != redis.Nil {
 			return -1, errors.Wrapf(err, "redis get key: %s err", key)
 		}
 		return ttl, nil
 	}
-	ttl, err := r.clusterClient.TTL(key).Result()
+	ttl, err := r.clusterClient.TTL(CTXRedis, key).Result()
 	if err != nil && err != redis.Nil {
 		return -1, errors.Wrapf(err, "redis get key: %s err", key)
 	}
@@ -277,10 +280,10 @@ func (r *Redis) Expire(key string, ttl time.Duration) (bool, error) {
 		return false, errors.New("empty key")
 	}
 	if r.client != nil {
-		ok, err := r.client.Expire(key, ttl).Result()
+		ok, err := r.client.Expire(CTXRedis, key, ttl).Result()
 		return ok, err
 	}
-	ok, err := r.clusterClient.Expire(key, ttl).Result()
+	ok, err := r.clusterClient.Expire(CTXRedis, key, ttl).Result()
 	return ok, err
 }
 
@@ -290,10 +293,10 @@ func (r *Redis) ExpireAt(key string, ttl time.Time) (bool, error) {
 		return false, errors.New("empty key")
 	}
 	if r.client != nil {
-		ok, err := r.client.ExpireAt(key, ttl).Result()
+		ok, err := r.client.ExpireAt(CTXRedis, key, ttl).Result()
 		return ok, err
 	}
-	ok, err := r.clusterClient.ExpireAt(key, ttl).Result()
+	ok, err := r.clusterClient.ExpireAt(CTXRedis, key, ttl).Result()
 	return ok, err
 
 }
@@ -303,10 +306,10 @@ func (r *Redis) Exists(keys ...string) (bool, error) {
 		return false, errors.New("empty keys")
 	}
 	if r.client != nil {
-		value, err := r.client.Exists(keys...).Result()
+		value, err := r.client.Exists(CTXRedis, keys...).Result()
 		return value > 0, err
 	}
-	value, err := r.clusterClient.Exists(keys...).Result()
+	value, err := r.clusterClient.Exists(CTXRedis, keys...).Result()
 	return value > 0, err
 }
 
@@ -315,13 +318,13 @@ func (r *Redis) IsExist(key string) bool {
 		return false
 	}
 	if r.client != nil {
-		value, err := r.client.Exists(key).Result()
+		value, err := r.client.Exists(CTXRedis, key).Result()
 		if err != nil && err != redis.Nil {
 			CacheStdLogger.Printf("cmd : Exists ; key : %s ; err : %v", key, err)
 		}
 		return value > 0
 	}
-	value, err := r.clusterClient.Exists(key).Result()
+	value, err := r.clusterClient.Exists(CTXRedis, key).Result()
 	if err != nil && err != redis.Nil {
 		CacheStdLogger.Printf("cmd : Exists ; key : %s ; err : %v", key, err)
 	}
@@ -353,12 +356,12 @@ func (r *Redis) Delete(key string) error {
 	}()
 
 	if r.client != nil {
-		_, err = r.client.Del(key).Result()
+		_, err = r.client.Del(CTXRedis, key).Result()
 		return err
 	}
 
 	//集群版
-	_, err = r.clusterClient.Del(key).Result()
+	_, err = r.clusterClient.Del(CTXRedis, key).Result()
 	return err
 }
 
@@ -384,10 +387,10 @@ func (r *Redis) Incr(key string) (value int64, err error) {
 		r.trace.Logger.Warn("redis-trace", zap.Any("", r.trace))
 	}()
 	if r.client != nil {
-		value, err = r.client.Incr(key).Result()
+		value, err = r.client.Incr(CTXRedis, key).Result()
 		return
 	}
-	value, err = r.clusterClient.Incr(key).Result()
+	value, err = r.clusterClient.Incr(CTXRedis, key).Result()
 	return
 }
 
@@ -399,13 +402,13 @@ func (r *Redis) Close() error {
 // Version redis server version
 func (r *Redis) Version() string {
 	if r.client != nil {
-		server := r.client.Info("server").Val()
+		server := r.client.Info(CTXRedis, "server").Val()
 		spl1 := strings.Split(server, "# Server")
 		spl2 := strings.Split(spl1[1], "redis_version:")
 		spl3 := strings.Split(spl2[1], "redis_git_sha1:")
 		return spl3[0]
 	}
-	server := r.clusterClient.Info("server").Val()
+	server := r.clusterClient.Info(CTXRedis, "server").Val()
 	spl1 := strings.Split(server, "# Server")
 	spl2 := strings.Split(spl1[1], "redis_version:")
 	spl3 := strings.Split(spl2[1], "redis_git_sha1:")
