@@ -11,3 +11,5 @@
 7. routine 协程池
 8. shutdown 优雅关闭
 9. logger 日志库
+   [x] 10. 阿里云 oss
+   []x 11. 阿里云转码
