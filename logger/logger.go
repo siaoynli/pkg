@@ -1,13 +1,14 @@
 package logger
 
 import (
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 const (
@@ -16,6 +17,12 @@ const (
 
 	// DefaultTimeLayout the default time layout;
 	DefaultTimeLayout = time.RFC3339
+
+	DefaultMaxSize = 128
+
+	DefaultMaxBackups = 20
+
+	DefaultMaxAge = 30
 )
 
 // Option custom setup config
@@ -83,23 +90,56 @@ func WithFileP(file string) Option {
 	}
 }
 
+type LogOptions struct {
+	Filename   string
+	MaxSize    int
+	MaxBackups int
+	MaxAge     int
+	Compress   bool
+}
+
+func (r *LogOptions) initDefaults() *LogOptions {
+	if r.Filename == "" {
+		r.Filename = "logs/log.log"
+	}
+
+	if r.MaxSize == 0 {
+		r.MaxSize = DefaultMaxSize
+	}
+
+	if r.MaxSize == 0 {
+		r.MaxSize = DefaultMaxSize
+	}
+
+	if r.MaxBackups == 0 {
+		r.MaxBackups = DefaultMaxBackups
+	}
+
+	if r.MaxAge == 0 {
+		r.MaxAge = DefaultMaxAge
+	}
+
+	return r
+}
+
 // WithFileRotationP write log to some file with rotation
-func WithFileRotationP(file string) Option {
-	dir := filepath.Dir(file)
+func WithFileRotationP(opts *LogOptions) Option {
+	options := opts.initDefaults()
+	dir := filepath.Dir(options.Filename)
 	if err := os.MkdirAll(dir, 0766); err != nil {
 		panic(err)
 	}
-
 	return func(opt *option) {
 		opt.file = &lumberjack.Logger{ // concurrent-safed
-			Filename:   file, // 文件路径
-			MaxSize:    128,  // 单个文件最大尺寸，默认单位 M
-			MaxBackups: 300,  // 最多保留 300 个备份
-			MaxAge:     30,   // 最大时间，默认单位 day
-			LocalTime:  true, // 使用本地时间
-			Compress:   true, // 是否压缩 disabled by default
+			Filename:   options.Filename,   // 文件路径
+			MaxSize:    options.MaxSize,    // 单个文件最大尺寸，默认单位 M
+			MaxBackups: options.MaxBackups, // 最多保留 300 个备份
+			MaxAge:     options.MaxAge,     // 最大时间，默认单位 day
+			LocalTime:  true,               // 使用本地时间
+			Compress:   options.Compress,   // 是否压缩 disabled by default
 		}
 	}
+
 }
 
 // WithTimeLayout custom time format

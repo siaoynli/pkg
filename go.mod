@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.138
 	github.com/bsm/sarama-cluster v2.1.15+incompatible
 	github.com/eapache/go-resiliency v1.3.0
-	github.com/go-redis/redis/v8 v8.11.5 // indirect
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/montanaflynn/stats v0.6.6 // indirect
 	github.com/olivere/elastic/v7 v7.0.32
